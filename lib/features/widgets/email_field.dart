@@ -64,7 +64,7 @@ class _EmailFieldState extends State<EmailField>
                   keyboardType: TextInputType.emailAddress,
                   onChanged: (value) async {
                     if (value.isNotEmpty) {
-                      if (isValidEmail(value)) {
+                      if (true) {
                         setState(() {
                           bottomAnimationValue = 0;
                           opacityAnimationValue = 1;

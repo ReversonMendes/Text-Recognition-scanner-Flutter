@@ -1,45 +1,32 @@
 import 'package:capture_prime/model/template.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import 'fields.dart';
+
 @JsonSerializable()
-class TipoDocumentoUser {
+class TemplateFields {
   final bool error;
   final int error_id;
   final String message;
-  final List<Template> templates;
+  final List<Fields> fields;
 
-  // "error": false,
-  // "error_id": 0,
-  // "message": "Templates listed succesfully",
-  // "templates": [
-  // {
-  // "id_tipo": "96",
-  // "nome_tipo": "Mov Financeiro",
-  // "nome_divisao": "CDL"
-  // },
-  // {
-  // "id_tipo": "110",
-  // "nome_tipo": "Boletos",
-  // "nome_divisao": "Contabilidade"
-  // },]
-
-  TipoDocumentoUser( {
+  TemplateFields({
     required this.error,
     required this.error_id,
     required this.message,
-    required this.templates,
+    required this.fields,
   });
 
-  factory TipoDocumentoUser.fromJson(Map<String, dynamic> json) {
+  factory TemplateFields.fromJson(Map<String, dynamic> json) {
+    var template = json['fields'] as List;
+    List<Fields> templatesList =
+        template.map((i) => Fields.fromJson(i)).toList();
 
-    var template = json['templates'] as List;
-    List<Template> templatesList = template.map((i) => Template.fromMap(i)).toList();
-
-    return TipoDocumentoUser(
+    return TemplateFields(
       error: json['error'] as bool,
       error_id: json['error_id'] as int,
       message: json['message'] as String,
-      templates: templatesList,
+      fields: templatesList,
     );
   }
 
@@ -48,14 +35,7 @@ class TipoDocumentoUser {
     tipoDoc["error"] = error;
     tipoDoc["error_id"] = error_id;
     tipoDoc["message"] = message;
-    tipoDoc["templates"] = templates;
+    tipoDoc["fields"] = fields;
     return tipoDoc;
   }
-// /// Connect the generated [_$PersonFromJson] function to the `fromJson`
-// /// factory.
-// factory Login.fromJson(Map<String, dynamic> json) => _$LoginFromJson(json);
-//
-// /// Connect the generated [_$PersonToJson] function to the `toJson` method.
-// Map<String, dynamic> toJson() => _$LoginToJson(this);
 }
-

@@ -1,17 +1,20 @@
 import 'dart:io';
-import 'package:brasil_fields/brasil_fields.dart';
+
 import 'package:capture_prime/features/widgets/combo_field.dart';
 import 'package:capture_prime/features/widgets/date_field.dart';
 import 'package:capture_prime/features/widgets/text_field.dart';
 import 'package:capture_prime/features/widgets/upload_button.dart';
+import 'package:capture_prime/model/upload_response.dart';
 import 'package:capture_prime/services/upload_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+//import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
-import '../model/fields.dart';
-import '../model/template.dart';
-import '../model/template_fields.dart';
-import '../services/documentos_service.dart';
+import '../../model/fields.dart';
+import '../../model/template.dart';
+import '../../model/template_fields.dart';
+import '../../services/documentos_service.dart';
+import '../../styles/colors.dart';
 
 class UploadScreen extends StatefulWidget {
   final Template documento;
@@ -30,20 +33,20 @@ class _UploadScreenState extends State<UploadScreen> {
 
   late Template documento = widget.documento;
   late File imagem = widget.imagem;
-  late TextRecognizer textRecognizer;
+  //late TextRecognizer textRecognizer;
 
   late TextEditingController emailController;
   late TextEditingController passwordController;
   late TextEditingController accountController;
   late TextEditingController dateController;
-  List<TextEditingController> _controllers = [];
-  List<dynamic> _fields = [];
+  final List<TextEditingController> _controllers = [];
+  final List<dynamic> _fields = [];
 
-  double _elementsOpacity = 1;
+  final double _elementsOpacity = 1;
 
   @override
   void initState() {
-    textRecognizer = TextRecognizer();
+    //textRecognizer = TextRecognizer();
     passwordController = TextEditingController();
     accountController = TextEditingController();
     emailController = TextEditingController();
@@ -56,7 +59,7 @@ class _UploadScreenState extends State<UploadScreen> {
   @override
   void dispose() {
     imagem.delete();
-    textRecognizer.close();
+    //textRecognizer.close();
     super.dispose();
   }
 
@@ -73,7 +76,7 @@ class _UploadScreenState extends State<UploadScreen> {
               style:
                   TextStyle(fontSize: 30, color: Colors.black.withOpacity(0.7)),
             ),
-            SizedBox(height: 50),
+            const SizedBox(height: 50),
             Expanded(child: _listView()),
             UploadButton(
               elementsOpacity: _elementsOpacity,
@@ -106,55 +109,6 @@ class _UploadScreenState extends State<UploadScreen> {
     );
   }
 
-  // Widget _addTile() {
-  //   return ListTile(
-  //     title: Icon(Icons.add),
-  //     onTap: () {
-  //       final controller = TextEditingController();
-  //       final field = TextField(
-  //         controller: controller,
-  //         decoration: InputDecoration(
-  //           border: OutlineInputBorder(),
-  //           labelText: "name${_controllers.length + 1}",
-  //         ),
-  //       );
-  //
-  //       setState(() {
-  //         _controllers.add(controller);
-  //         _fields.add(field);
-  //       });
-  //     },
-  //   );
-  // }
-  //
-  // Widget _okButton() {
-  //   return ElevatedButton(
-  //     onPressed: () async {
-  //       String text = _controllers
-  //           .where((element) => element.text != "")
-  //           .fold("", (acc, element) => acc += "${element.text}\n");
-  //       final alert = AlertDialog(
-  //         title: Text("Count: ${_controllers.length}"),
-  //         content: Text(text),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text("OK"),
-  //           ),
-  //         ],
-  //       );
-  //       await showDialog(
-  //         context: context,
-  //         builder: (BuildContext context) => alert,
-  //       );
-  //       setState(() {});
-  //     },
-  //     child: Text("OK"),
-  //   );
-  // }
-
   Future<void> _createFields(List<Fields> listaCampos) async {
     // final inputImage = InputImage.fromFile(imagem);
     // final RecognizedText recognizedText =
@@ -164,11 +118,50 @@ class _UploadScreenState extends State<UploadScreen> {
     // accountController = TextEditingController(text: recognizedText.text);
     // emailController = TextEditingController();
     var field;
+    //listaCampos.sort((a, b) => b.id_combo.compareTo(a.id_combo));
+
+
     for (var i = 0; i < listaCampos.length; i++) {
       final controller = TextEditingController();
 
       if (listaCampos[i].itenscombo.isNotEmpty) {
-        field = DropdownButtonExample();
+        //   List<String> option =
+        //       listaCampos[i].itenscombo.map((i) => i.valoritem).toList();
+        //   field = ComboBox(
+        //     listOption: option,
+        //     comboController: controller,
+        //     descrCampo: listaCampos[i].desccampo,
+        //   );
+
+        late Map<String, Widget> itens = {};
+        listaCampos[i]
+            .itenscombo
+            .forEach((item) => itens[item.valoritem] = Padding(
+                  padding: EdgeInsets.all(5.0),
+                  child: Text(item.valoritem),
+                ));
+
+        field = Padding(
+          padding: EdgeInsets.only(top: 20.0),
+          child: Column(
+            children: <Widget>[
+              Text(listaCampos[i].desccampo),
+              Padding(
+                padding: EdgeInsets.only(top: 10.0),
+                child: CupertinoSegmentedControl<String>(
+                  unselectedColor: Colors.grey.shade50,
+                  selectedColor: Colors.blue,
+                  children: itens,
+                  onValueChanged: (value) {
+                    setState(() {
+                      controller.value = TextEditingValue(text: value!);
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
       } else {
         switch (listaCampos[i].tipocampo) {
           case 'VARCHAR':
@@ -177,6 +170,8 @@ class _UploadScreenState extends State<UploadScreen> {
                 fade: _elementsOpacity == 0,
                 textController: controller,
                 title: listaCampos[i].desccampo,
+                mask: listaCampos[i].masccampo,
+                tamanho: int.parse(listaCampos[i].tamcampo),
               );
             }
             break;
@@ -231,26 +226,45 @@ class _UploadScreenState extends State<UploadScreen> {
 
   Future<void> _upload(BuildContext context) async {
     try {
-      List<String> file = [imagem.path];
+      //List<String> file = [imagem.path];
+      List<String> params = [];
 
-      _uploadService.uploadArchive(documento.id_tipo, imagem.path);
+      for (final i in _controllers) {
+        params.add(i.value.text);
+      }
 
-      final alert = AlertDialog(
-        title: Text("Count: ${_controllers.length}"),
-        content: Text('text'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text("OK"),
-          ),
-        ],
-      );
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) => alert,
-      );
+      UploadResponse? uploadResponse = await _uploadService.uploadArchive(
+          documento.id_tipo, imagem.path, params);
+
+      if (uploadResponse != null) {
+        var text = uploadResponse.error
+            ? 'Houve um erro ao enviar o arquivo!'
+            : 'Upload realizado com sucesso!';
+
+        final alert = AlertDialog(
+          title: Text("Capture Prime"),
+          icon: const Icon(Icons.cloud_done, color: blueColor),
+          content: Text(text,
+              style: TextStyle(
+                  fontSize: 15, color: Colors.black.withOpacity(0.7))),
+          actions: [
+            TextButton(
+              onPressed: () {
+                var nav = Navigator.of(context);
+                nav.pop();
+                nav.pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+        // ignore: use_build_context_synchronously
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) => alert,
+        );
+      }
+
       setState(() {});
     } catch (e) {
       print('falha upload;');
@@ -266,63 +280,63 @@ class _UploadScreenState extends State<UploadScreen> {
     }
   }
 
-  String _scanCPFOrCNPJNumber(RecognizedText recognizedText) {
-    for (final i in recognizedText.blocks) {
-      for (final line in i.lines) {
-        for (final element in line.elements) {
-          String text = element.text;
+  // String _scanCPFOrCNPJNumber(RecognizedText recognizedText) {
+  //   for (final i in recognizedText.blocks) {
+  //     for (final line in i.lines) {
+  //       for (final element in line.elements) {
+  //         String text = element.text;
+  //
+  //         /// Checking whether the gotten text is a phone number or not.
+  //         if (UtilBrasilFields.isCPFValido(text)) {
+  //           debugPrint('Yes, this is a phone number');
+  //
+  //           /// Converting text into phone number
+  //           //String phoneNumber = _extractPhoneNumber(text);
+  //           String phoneNumber = text;
+  //           return phoneNumber;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return '';
+  // }
 
-          /// Checking whether the gotten text is a phone number or not.
-          if (UtilBrasilFields.isCPFValido(text)) {
-            debugPrint('Yes, this is a phone number');
+  // String _scanDate(RecognizedText recognizedText) {
+  //   for (final i in recognizedText.blocks) {
+  //     for (final line in i.lines) {
+  //       for (final element in line.elements) {
+  //         String text = element.text;
+  //
+  //         /// Checking whether the gotten text is a phone number or not.
+  //         if (_isDate(text)) {
+  //           debugPrint('Yes, this is a phone number');
+  //
+  //           /// Converting text into phone number
+  //           //String phoneNumber = _extractPhoneNumber(text);
+  //           String phoneNumber = text;
+  //           return phoneNumber;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return '';
+  // }
 
-            /// Converting text into phone number
-            //String phoneNumber = _extractPhoneNumber(text);
-            String phoneNumber = text;
-            return phoneNumber;
-          }
-        }
-      }
-    }
-    return '';
-  }
-
-  String _scanDate(RecognizedText recognizedText) {
-    for (final i in recognizedText.blocks) {
-      for (final line in i.lines) {
-        for (final element in line.elements) {
-          String text = element.text;
-
-          /// Checking whether the gotten text is a phone number or not.
-          if (_isDate(text)) {
-            debugPrint('Yes, this is a phone number');
-
-            /// Converting text into phone number
-            //String phoneNumber = _extractPhoneNumber(text);
-            String phoneNumber = text;
-            return phoneNumber;
-          }
-        }
-      }
-    }
-    return '';
-  }
-
-  bool _isDate(value) {
-    final components = value.split("/");
-    if (components.length == 3) {
-      final day = int.tryParse(components[0]);
-      final month = int.tryParse(components[1]);
-      final year = int.tryParse(components[2]);
-      if (day != null && month != null && year != null) {
-        final date = DateTime(year, month, day);
-        if (date.year == year && date.month == month && date.day == day) {
-          return true;
-        } else {
-          return false;
-        }
-      }
-    }
-    return false;
-  }
+  // bool _isDate(value) {
+  //   final components = value.split("/");
+  //   if (components.length == 3) {
+  //     final day = int.tryParse(components[0]);
+  //     final month = int.tryParse(components[1]);
+  //     final year = int.tryParse(components[2]);
+  //     if (day != null && month != null && year != null) {
+  //       final date = DateTime(year, month, day);
+  //       if (date.year == year && date.month == month && date.day == day) {
+  //         return true;
+  //       } else {
+  //         return false;
+  //       }
+  //     }
+  //   }
+  //   return false;
+  // }
 }

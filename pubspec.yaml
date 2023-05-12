@@ -1,5 +1,5 @@
-name: text_recognition_flutter
-description: A sample Flutter project that use text recognition.
+name: capture_prime
+description: Flutter project that use text recognition.
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -8,15 +8,31 @@ environment:
 
 dependencies:
   camera: ^0.10.0+4
+  document_scanner_flutter: ^0.2.7
+  permission_handler: ^10.2.0
+  cupertino_icons: ^1.0.2
+  font_awesome_flutter: ^10.2.1
+  dio: ^5.0.0
+  json_annotation: ^4.8.0
+  flutter_session_manager: ^1.0.3
+  http: ^0.13.5
+  brasil_fields: ^1.10.0
+  flutter_easyloading: ^3.0.5
+  flutter_native_splash: ^2.2.19
+  text_mask: ^1.0.3
   flutter:
     sdk: flutter
-  google_mlkit_text_recognition: ^0.4.0
-  permission_handler: ^10.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  json_serializable: ^6.6.1
+  build_runner: ^2.3.3
+  flutter_launcher_icons: ^0.12.0
 
 flutter:
   uses-material-design: true
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/

@@ -1,13 +1,15 @@
-class Templates {
+class Template {
   final String id_tipo;
   final String nome_tipo;
   final String nome_divisao;
 
-  Templates( {
-    required this.id_tipo, required this.nome_tipo, required this.nome_divisao
+  Template( {
+    required this.id_tipo,
+    required this.nome_tipo,
+    required this.nome_divisao
   });
 
-  Templates.fromMap(Map map)
+  Template.fromMap(Map map)
       : this(
     id_tipo : map['id_tipo'],
     nome_tipo : map['nome_tipo'],

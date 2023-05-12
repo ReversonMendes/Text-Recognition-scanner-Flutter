@@ -3,27 +3,27 @@ import 'package:capture_prime/styles/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class DateField extends StatefulWidget {
+class CpfCnpjField extends StatefulWidget {
   final bool fadeDate;
-  final TextEditingController dateController;
+  final TextEditingController cpfCnpjController;
   final String title;
-  const DateField(
+  const CpfCnpjField(
       {super.key,
-      required this.dateController,
+      required this.cpfCnpjController,
       required this.fadeDate,
       required this.title});
 
   @override
-  State<DateField> createState() => _DateFieldState();
+  State<CpfCnpjField> createState() => _CpfCnpjFieldState();
 }
 
-class _DateFieldState extends State<DateField>
+class _CpfCnpjFieldState extends State<CpfCnpjField>
     with SingleTickerProviderStateMixin {
   double bottomAnimationValue = 0;
   double opacityAnimationValue = 0;
   EdgeInsets paddingAnimationValue = EdgeInsets.only(top: 22);
 
-  late TextEditingController dateController;
+  late TextEditingController cpfCnpjController;
   late AnimationController _animationController;
   late Animation<Color?> _animation;
   late String title = '';
@@ -31,7 +31,7 @@ class _DateFieldState extends State<DateField>
   FocusNode node = FocusNode();
   @override
   void initState() {
-    dateController = widget.dateController;
+    cpfCnpjController = widget.cpfCnpjController;
     title = widget.title;
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
@@ -60,65 +60,57 @@ class _DateFieldState extends State<DateField>
   Widget build(BuildContext context) {
     return Stack(
       children: [
-
-        title != null ? Text(title, style: TextStyle(fontSize: 15, color: Colors.black.withOpacity(0.7) ),) : Text('Data'),
-
-        TweenAnimationBuilder<double>(
-          duration: Duration(milliseconds: 300),
-          tween: Tween(begin: 0, end: widget.fadeDate ? 0 : 1),
-          builder: ((_, value, __) => Opacity(
-                opacity: value,
-                child: TextFormField(
-                  controller: dateController,
-                  focusNode: node,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly, DataInputFormatter()],
-                  keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return null;
-                    }
-                    final components = value.split("/");
-                    if (components.length == 3) {
-                      final day = int.tryParse(components[0]);
-                      final month = int.tryParse(components[1]);
-                      final year = int.tryParse(components[2]);
-                      if (day != null && month != null && year != null) {
-                        final date = DateTime(year, month, day);
-                        if (date.year == year &&
-                            date.month == month &&
-                            date.day == day) {
-                          return null;
-                        }
-                      }
-                    }
-                    return "wrong date";
-                  },
-                  onChanged: (value) async {
-                    if (value.isNotEmpty) {
-                      if (isValidDate(value)) {
-                        setState(() {
-                          bottomAnimationValue = 0;
-                          opacityAnimationValue = 1;
-                          paddingAnimationValue = EdgeInsets.only(top: 0);
-                        });
-                        _animationController.forward();
-                      } else {
-                        _animationController.reverse();
-                        setState(() {
-                          bottomAnimationValue = 1;
-                          opacityAnimationValue = 0;
-                          paddingAnimationValue = EdgeInsets.only(top: 22);
-                        });
-                      }
-                    } else {
-                      setState(() {
-                        bottomAnimationValue = 0;
-                      });
-                    }
-                  },
-                ),
-              )),
+        Padding(
+          padding: EdgeInsets.only(bottom: 0),
+          child: title != null
+              ? Text(
+                  title,
+                  style: TextStyle(
+                      fontSize: 15, color: Colors.black.withOpacity(0.7)),
+                )
+              : Text('CPF ou CNPJ'),
         ),
+        Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: TweenAnimationBuilder<double>(
+              duration: Duration(milliseconds: 300),
+              tween: Tween(begin: 0, end: widget.fadeDate ? 0 : 1),
+              builder: ((_, value, __) => Opacity(
+                    opacity: value,
+                    child: TextFormField(
+                      controller: cpfCnpjController,
+                      focusNode: node,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        CpfOuCnpjFormatter()
+                      ],
+                      keyboardType: TextInputType.phone,
+                      onChanged: (value) async {
+                        if (value.isNotEmpty) {
+                          if (isValidDate(value)) {
+                            setState(() {
+                              bottomAnimationValue = 0;
+                              opacityAnimationValue = 1;
+                              paddingAnimationValue = EdgeInsets.only(top: 0);
+                            });
+                            _animationController.forward();
+                          } else {
+                            _animationController.reverse();
+                            setState(() {
+                              bottomAnimationValue = 1;
+                              opacityAnimationValue = 0;
+                              paddingAnimationValue = EdgeInsets.only(top: 22);
+                            });
+                          }
+                        } else {
+                          setState(() {
+                            bottomAnimationValue = 0;
+                          });
+                        }
+                      },
+                    ),
+                  )),
+            )),
         Positioned.fill(
           child: Align(
             alignment: Alignment.bottomCenter,

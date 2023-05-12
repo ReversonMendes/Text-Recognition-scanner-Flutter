@@ -1,23 +1,59 @@
-class Template {
-  final String id_tipo;
-  final String nome_tipo;
-  final String nome_divisao;
+import 'item_combo.dart';
 
-  Template( {
-    required this.id_tipo, required this.nome_tipo, required this.nome_divisao
-  });
+enum camposTipo {
+  VARCHAR,
+  DATE,
+  ANO,
+  CPFCNPJ,
+  COMBO
+}
 
-  Template.fromMap(Map map)
-      : this(
-    id_tipo : map['id_tipo'],
-    nome_tipo : map['nome_tipo'],
-    nome_divisao : map['nome_divisao'],
-  );
+class Fields {
+  final String id_campo;
+  final String desccampo;
+  final String nomecampo;
+  final String tipocampo;
+  final String tamcampo;
+  final String masccampo;
+  final String id_combo;
+  final List<ItemCombo> itenscombo;
+
+  Fields(
+      {required this.id_campo,
+      required this.desccampo,
+      required this.nomecampo,
+      required this.tipocampo,
+      required this.tamcampo,
+      required this.masccampo,
+      required this.id_combo,
+      required this.itenscombo});
+
+  factory Fields.fromJson(Map<String, dynamic> map) {
+    var template = map['itenscombo'] as List;
+    List<ItemCombo> itensList =
+    template.map((i) => ItemCombo.fromMap(i)).toList();
+
+    return Fields(
+      id_campo: map['id_campo'],
+      desccampo: map['desccampo'],
+      nomecampo: map['nomecampo'],
+      tipocampo: map['tipocampo'],
+      tamcampo: map['tamcampo'],
+      masccampo: map['masccampo'],
+      id_combo: map['id_combo'],
+      itenscombo: itensList,
+    );
+  }
+
 
   Map<String, dynamic> asMap() => {
-    'idTipo' : id_tipo,
-    'nomeTipo' : nome_tipo,
-    'nomeDivisao' : nome_divisao,
-  };
-
+        'idCampo': id_campo,
+        'descCampo': desccampo,
+        'nomeCampo': nomecampo,
+        'tipoCampo': tipocampo,
+        'tamCampo': tamcampo,
+        'mascCampo': masccampo,
+        'idCombo': id_combo,
+        'itensCombo': itenscombo,
+      };
 }

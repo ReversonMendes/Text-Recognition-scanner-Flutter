@@ -1,25 +1,25 @@
-class Template {
-  final String id_tipo;
-  final String nome_tipo;
-  final String nome_divisao;
+class ItemCombo {
+  final String id_item;
+  final String descitem;
+  final String valoritem;
 
-  Template( {
-    required this.id_tipo,
-    required this.nome_tipo,
-    required this.nome_divisao
+  ItemCombo( {
+    required this.id_item,
+    required this.descitem,
+    required this.valoritem
   });
 
-  Template.fromMap(Map map)
+  ItemCombo.fromMap(Map map)
       : this(
-    id_tipo : map['id_tipo'],
-    nome_tipo : map['nome_tipo'],
-    nome_divisao : map['nome_divisao'],
+    id_item : map['id_item'],
+    descitem : map['descitem'],
+    valoritem : map['valoritem'],
   );
 
   Map<String, dynamic> asMap() => {
-    'idTipo' : id_tipo,
-    'nomeTipo' : nome_tipo,
-    'nomeDivisao' : nome_divisao,
+    'idItem' : id_item,
+    'descItem' : descitem,
+    'valorItem' : valoritem,
   };
 
 }

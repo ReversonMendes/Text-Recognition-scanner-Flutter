@@ -64,7 +64,7 @@ class _AccountFieldState extends State<AccountField>
               keyboardType: TextInputType.text,
               onChanged: (value) async {
                 if (value.isNotEmpty) {
-                  if (isValidAccount(value)) {
+                  if (true) {
                     setState(() {
                       bottomAnimationValue = 0;
                       opacityAnimationValue = 1;

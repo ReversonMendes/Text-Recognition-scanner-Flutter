@@ -1,30 +1,38 @@
+import 'package:brasil_fields/brasil_fields.dart';
 import 'package:capture_prime/styles/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class AccountField extends StatefulWidget {
-  final bool fadeAccount;
-  final TextEditingController accountController;
-  const AccountField(
-      {super.key, required this.accountController, required this.fadeAccount});
+class DateField extends StatefulWidget {
+  final bool fadeDate;
+  final TextEditingController dateController;
+  final String title;
+  const DateField(
+      {super.key,
+      required this.dateController,
+      required this.fadeDate,
+      required this.title});
 
   @override
-  State<AccountField> createState() => _AccountFieldState();
+  State<DateField> createState() => _DateFieldState();
 }
 
-class _AccountFieldState extends State<AccountField>
+class _DateFieldState extends State<DateField>
     with SingleTickerProviderStateMixin {
   double bottomAnimationValue = 0;
   double opacityAnimationValue = 0;
   EdgeInsets paddingAnimationValue = EdgeInsets.only(top: 22);
 
-  late TextEditingController accountController;
+  late TextEditingController dateController;
   late AnimationController _animationController;
   late Animation<Color?> _animation;
+  late String title = '';
 
   FocusNode node = FocusNode();
   @override
   void initState() {
-    accountController = widget.accountController;
+    dateController = widget.dateController;
+    title = widget.title;
     _animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
     final tween = ColorTween(begin: Colors.grey.withOpacity(0), end: blueColor);
@@ -52,57 +60,90 @@ class _AccountFieldState extends State<AccountField>
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        TweenAnimationBuilder<double>(
-          duration: Duration(milliseconds: 300),
-          tween: Tween(begin: 0, end: widget.fadeAccount ? 0 : 1),
-          builder: ((_, value, __) => Opacity(
-            opacity: value,
-            child: TextFormField(
-              controller: accountController,
-              focusNode: node,
-              decoration: InputDecoration(hintText: "Conta"),
-              keyboardType: TextInputType.text,
-              onChanged: (value) async {
-                if (value.isNotEmpty) {
-                  if (isValidAccount(value)) {
-                    setState(() {
-                      bottomAnimationValue = 0;
-                      opacityAnimationValue = 1;
-                      paddingAnimationValue = EdgeInsets.only(top: 0);
-                    });
-                    _animationController.forward();
-                  } else {
-                    _animationController.reverse();
-                    setState(() {
-                      bottomAnimationValue = 1;
-                      opacityAnimationValue = 0;
-                      paddingAnimationValue = EdgeInsets.only(top: 22);
-                    });
-                  }
-                } else {
-                  setState(() {
-                    bottomAnimationValue = 0;
-                  });
-                }
-              },
-            ),
-          )),
+        title != null
+            ? Text(
+                title,
+                style: TextStyle(
+                    fontSize: 15, color: Colors.black.withOpacity(0.7)),
+              )
+            : Text('Data'),
+        Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: TweenAnimationBuilder<double>(
+            duration: Duration(milliseconds: 300),
+            tween: Tween(begin: 0, end: widget.fadeDate ? 0 : 1),
+            builder: ((_, value, __) => Opacity(
+                  opacity: value,
+                  child: TextFormField(
+                    controller: dateController,
+                    focusNode: node,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      DataInputFormatter()
+                    ],
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return null;
+                      }
+                      final components = value.split("/");
+                      if (components.length == 3) {
+                        final day = int.tryParse(components[0]);
+                        final month = int.tryParse(components[1]);
+                        final year = int.tryParse(components[2]);
+                        if (day != null && month != null && year != null) {
+                          final date = DateTime(year, month, day);
+                          if (date.year == year &&
+                              date.month == month &&
+                              date.day == day) {
+                            return null;
+                          }
+                        }
+                      }
+                      return "wrong date";
+                    },
+                    onChanged: (value) async {
+                      if (value.isNotEmpty) {
+                        if (isValidDate(value)) {
+                          setState(() {
+                            bottomAnimationValue = 0;
+                            opacityAnimationValue = 1;
+                            paddingAnimationValue = EdgeInsets.only(top: 0);
+                          });
+                          _animationController.forward();
+                        } else {
+                          _animationController.reverse();
+                          setState(() {
+                            bottomAnimationValue = 1;
+                            opacityAnimationValue = 0;
+                            paddingAnimationValue = EdgeInsets.only(top: 22);
+                          });
+                        }
+                      } else {
+                        setState(() {
+                          bottomAnimationValue = 0;
+                        });
+                      }
+                    },
+                  ),
+                )),
+          ),
         ),
         Positioned.fill(
           child: Align(
             alignment: Alignment.bottomCenter,
             child: AnimatedContainer(
               duration: Duration(milliseconds: 500),
-              width: widget.fadeAccount ? 0 : 300,
+              width: widget.fadeDate ? 0 : 300,
               child: TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: bottomAnimationValue),
                 curve: Curves.easeIn,
                 duration: Duration(milliseconds: 500),
                 builder: ((context, value, child) => LinearProgressIndicator(
-                  value: value,
-                  backgroundColor: Colors.grey.withOpacity(0.5),
-                  color: Colors.black,
-                )),
+                      value: value,
+                      backgroundColor: Colors.grey.withOpacity(0.5),
+                      color: Colors.black,
+                    )),
               ),
             ),
           ),
@@ -113,22 +154,22 @@ class _AccountFieldState extends State<AccountField>
             duration: Duration(milliseconds: 500),
             padding: paddingAnimationValue,
             child: TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0, end: widget.fadeAccount ? 0 : 1),
+              tween: Tween(begin: 0, end: widget.fadeDate ? 0 : 1),
               duration: Duration(milliseconds: 700),
               builder: ((context, value, child) => Opacity(
-                opacity: value,
-                child: Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12.0)
-                        .copyWith(bottom: 0),
-                    child: Icon(Icons.check_rounded,
-                        size: 27,
-                        color: _animation.value // _animation.value,
+                    opacity: value,
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12.0)
+                            .copyWith(bottom: 0),
+                        child: Icon(Icons.check_rounded,
+                            size: 27,
+                            color: _animation.value // _animation.value,
+                            ),
+                      ),
                     ),
-                  ),
-                ),
-              )),
+                  )),
             ),
           ),
         ),
@@ -136,9 +177,9 @@ class _AccountFieldState extends State<AccountField>
     );
   }
 
-  bool isValidAccount(String account) {
+  bool isValidDate(String date) {
     return RegExp(
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-        .hasMatch(account);
+            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+        .hasMatch(date);
   }
 }
